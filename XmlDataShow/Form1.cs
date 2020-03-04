@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -72,7 +73,7 @@ namespace XmlDataShow
             XmlSerializer ser = new XmlSerializer(typeof(rss));
             if (ser.Deserialize(new FileStream($"data\\testdata.txt", FileMode.Open)) is rss result)
             {
-                dataGridView1.DataSource = result.channel.item;
+                dataGridView1.DataSource = result.channel.item.OrderBy(o => o.pubDate).ToArray();
             }
 
             //    if (ser.Deserialize(new FileStream(dataPath, FileMode.Open)) is rss processResult)
