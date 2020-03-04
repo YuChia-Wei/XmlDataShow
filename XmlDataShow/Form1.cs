@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 
 namespace XmlDataShow
 {
@@ -51,12 +52,13 @@ namespace XmlDataShow
             {
                 var writer = new StreamWriter(fileStream);
 
-                writer.AutoFlush = true;
+                //foreach (var s in dataResult.Split('\n'))
+                //{
+                //    writer.WriteLine(s);
+                //}
 
-                foreach (var s in dataResult.Split('\n'))
-                {
-                    writer.WriteLine(s);
-                }
+                writer.Write(dataResult);
+                writer.AutoFlush = true;
             }
 
             return File.Exists(path);
@@ -64,10 +66,14 @@ namespace XmlDataShow
 
         private void ShowDataButton_Click(object sender, EventArgs e)
         {
-            dataSet1.ReadXml($"data\\testdata.txt");
-            dataGridView1.DataSource = dataSet1;
+            //dataSet1.ReadXml($"data\\testdata.txt");
+            //dataGridView1.DataSource = dataSet1;
 
-            //    XmlSerializer ser = new XmlSerializer(typeof(rss));
+            XmlSerializer ser = new XmlSerializer(typeof(rss));
+            if (ser.Deserialize(new FileStream($"data\\testdata.txt", FileMode.Open)) is rss result)
+            {
+                dataGridView1.DataSource = result.channel.item;
+            }
 
             //    if (ser.Deserialize(new FileStream(dataPath, FileMode.Open)) is rss processResult)
             //    {
