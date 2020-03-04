@@ -23,10 +23,12 @@ namespace XmlDataShow
             //使用 async 方法從網路 url 上取得回應
             using (HttpResponseMessage response = await client.GetAsync(urlStr))
             // 將網路取得回應的內容設定給 httpcontent，可省略，直接使用 response.Content
-            using (HttpContent content = response.Content)
             {
-                // 將 httpcontent 轉為 string
-                result = await content.ReadAsStringAsync();
+                using (HttpContent content = response.Content)
+                {
+                    // 將 httpcontent 轉為 string
+                    result = await content.ReadAsStringAsync();
+                }
             }
 
             return result;
@@ -34,29 +36,21 @@ namespace XmlDataShow
 
         private async void button2_Click(object sender, EventArgs e)
         {
-            var urlDataDownloader = new UrlDataDownloader();
             var dataPath = $"data\\testdata.txt";
             var url = "http://www.bbc.co.uk/zhongwen/trad/index.xml";
 
-            //urlDataDownloader.GetRssDataAsync(url).GetAwaiter().GetResult();
+            var result = await GetResult(url);
 
-            string result = await GetResult(url);
-
-            saveXmlFile(dataPath, result);
+            SaveXmlFile(dataPath, result);
         }
 
-        private bool saveXmlFile(string path, string dataResult)
+        private bool SaveXmlFile(string path, string dataResult)
         {
             System.IO.Directory.CreateDirectory($"data\\");
 
             using (var fileStream = new FileStream(path, FileMode.OpenOrCreate))
             {
                 var writer = new StreamWriter(fileStream);
-
-                //foreach (var s in dataResult.Split('\n'))
-                //{
-                //    writer.WriteLine(s);
-                //}
 
                 writer.Write(dataResult);
                 writer.AutoFlush = true;
@@ -67,20 +61,11 @@ namespace XmlDataShow
 
         private void ShowDataButton_Click(object sender, EventArgs e)
         {
-            //dataSet1.ReadXml($"data\\testdata.txt");
-            //dataGridView1.DataSource = dataSet1;
-
-            XmlSerializer ser = new XmlSerializer(typeof(rss));
+            var ser = new XmlSerializer(typeof(rss));
             if (ser.Deserialize(new FileStream($"data\\testdata.txt", FileMode.Open)) is rss result)
             {
                 dataGridView1.DataSource = result.channel.item.OrderBy(o => o.pubDate).ToArray();
             }
-
-            //    if (ser.Deserialize(new FileStream(dataPath, FileMode.Open)) is rss processResult)
-            //    {
-            //        dataGridView1.DataSource = processResult.channel;
-            //        dataGridView1.Show();
-            //    }
         }
     }
 }
